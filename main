@@ -1,0 +1,8 @@
+from application import ConsoleApplication
+
+if __name__ == "__main__":
+    try:
+        app = ConsoleApplication()
+        app.run()
+    except Exception as e:
+        print(f"Unexpected error: {e}")
