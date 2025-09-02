@@ -1,0 +1,65 @@
+from insured import Insured
+from claim import Claim
+
+
+class Registry:
+    """
+    Registry of insured persons and their claims.
+    Provides functionality to add, search, and display records.
+    """
+
+    def __init__(self):
+        self.insured_list: list[Insured] = []
+        self.claims: list[Claim] = []
+        self.claim_id_counter = 1
+
+    def add_insured(self, insured: Insured):
+        """Add a new insured person to the registry."""
+        self.insured_list.append(insured)
+
+    def show_all_insured(self):
+        """Display all insured persons in a formatted table."""
+        if not self.insured_list:
+            print("No insured persons found.")
+        else:
+            print(f"{'First Name':<12} {'Last Name':<12} {'Age':<5} {'Phone'}")
+            print("-" * 40)
+            for insured in self.insured_list:
+                print(insured)
+
+    def find_insured(self, first_name: str, last_name: str) -> list[Insured]:
+        """Search insured persons by first and last name."""
+        matches = [
+            i for i in self.insured_list
+            if i.first_name.lower() == first_name.lower() and i.last_name.lower() == last_name.lower()
+        ]
+        if matches:
+            for insured in matches:
+                print(insured)
+        else:
+            print("No insured person found with that name.")
+        return matches
+
+    def add_claim(self, claim: Claim):
+        """Add a new insurance claim to the registry and link it to insured."""
+        self.claims.append(claim)
+        claim.insured.add_claim(claim)
+
+    def show_claims(self):
+        """Display all insurance claims."""
+        if not self.claims:
+            print("No claims recorded.")
+        else:
+            for c in self.claims:
+                print(c)
+                print("-" * 30)
+
+    def show_claims_for_insured(self, insured: Insured):
+        """Display all claims for a specific insured person."""
+        if not insured.claims:
+            print(f"{insured.first_name} {insured.last_name} has no claims.")
+        else:
+            print(f"Claims for {insured.first_name} {insured.last_name}:")
+            for c in insured.claims:
+                print(c)
+                print("-" * 30)
