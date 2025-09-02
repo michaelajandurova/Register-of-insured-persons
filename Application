@@ -1,0 +1,151 @@
+import os
+import re
+from datetime import datetime
+from insured import Insured
+from claim import Claim
+from registry import Registry
+
+
+class ConsoleApplication:
+    """
+    Console-based insurance registry application.
+    Provides menu-driven interaction for managing insured persons and claims.
+    """
+
+    def __init__(self):
+        self.registry = Registry()
+
+    def run(self):
+        """Start the main application loop."""
+        while True:
+            self.clear_console()
+            self.show_menu()
+            choice = input("Enter your choice: ").strip()
+            print()
+
+            match choice:
+                case "1":
+                    self.create_insured()
+                case "2":
+                    self.registry.show_all_insured()
+                case "3":
+                    self.search_insured()
+                case "4":
+                    self.create_claim()
+                case "5":
+                    self.registry.show_claims()
+                case "6":
+                    self.show_claims_for_person()
+                case "7":
+                    print("Exiting application.")
+                    break
+                case _:
+                    print("Invalid choice. Try again.")
+
+            print()
+            input("Press Enter to continue...")
+
+    def show_menu(self):
+        """Display the main menu options."""
+        print("------------------------------")
+        print("Insurance Registry System")
+        print("------------------------------")
+        print("1 - Add a new insured person")
+        print("2 - Show all insured persons")
+        print("3 - Search insured person")
+        print("4 - Add an insurance claim")
+        print("5 - Show all claims")
+        print("6 - Show claims for a specific insured")
+        print("7 - Exit")
+        print("------------------------------")
+
+    def create_insured(self):
+        """Prompt user to create a new insured person."""
+        first_name = self.input_text("Enter first name: ")
+        last_name = self.input_text("Enter last name: ")
+        phone = self.input_phone("Enter phone number (international format, e.g. +420777123456): ")
+        age = self.input_age("Enter age: ")
+        insured = Insured(first_name, last_name, age, phone)
+        self.registry.add_insured(insured)
+        print("\nInsured person added successfully.")
+
+    def create_claim(self):
+        """Prompt user to create a new insurance claim."""
+        if not self.registry.insured_list:
+            print("At least one insured person must exist first.")
+            return
+
+        try:
+            self.registry.show_all_insured()
+            idx = int(input("Enter index of the insured person (1-based): "))
+            if not (1 <= idx <= len(self.registry.insured_list)):
+                print("Invalid index.")
+                return
+
+            insured = self.registry.insured_list[idx - 1]
+            description = input("Enter claim description: ")
+            date = input("Enter claim date (YYYY-MM-DD): ")
+            datetime.strptime(date, "%Y-%m-%d")  # validation
+            status = "open"
+
+            claim = Claim(self.registry.claim_id_counter, description, date, status, insured)
+            self.registry.claim_id_counter += 1
+            self.registry.add_claim(claim)
+            print("Claim created successfully.")
+        except ValueError:
+            print("Invalid input format. Please try again.")
+
+    def search_insured(self):
+        """Prompt user to search insured persons by name."""
+        first_name = self.input_text("Enter first name: ")
+        last_name = self.input_text("Enter last name: ")
+        self.registry.find_insured(first_name, last_name)
+
+    def show_claims_for_person(self):
+        """Prompt user to show claims for a specific insured person."""
+        if not self.registry.insured_list:
+            print("No insured persons available.")
+            return
+        self.registry.show_all_insured()
+        try:
+            idx = int(input("Enter index of the insured person (1-based): "))
+            if not (1 <= idx <= len(self.registry.insured_list)):
+                print("Invalid index.")
+                return
+            insured = self.registry.insured_list[idx - 1]
+            self.registry.show_claims_for_insured(insured)
+        except ValueError:
+            print("Invalid input.")
+
+    def input_text(self, prompt: str) -> str:
+        """Validate that the input is alphabetic text only."""
+        while True:
+            value = input(prompt).strip()
+            if value.isalpha():
+                return value
+            print("This field can only contain letters (no spaces or digits).")
+
+    def input_age(self, prompt: str) -> int:
+        """Validate that the input is a valid age (0–120)."""
+        while True:
+            try:
+                age = int(input(prompt))
+                if 0 <= age <= 120:
+                    return age
+                else:
+                    print("Enter an age between 0 and 120.")
+            except ValueError:
+                print("Enter a valid integer.")
+
+    def input_phone(self, prompt: str) -> str:
+        """Validate that the phone number matches international E.164 format."""
+        while True:
+            phone = input(prompt).strip().replace(" ", "")
+            # E.164: starts with +, followed by 8–15 digits
+            if re.fullmatch(r"^\+[1-9]\d{7,14}$", phone):
+                return phone
+            print("Phone number must be in international format, e.g. +420777123456 or +491701234567.")
+
+    def clear_console(self):
+        """Clear the console screen."""
+        os.system('cls' if os.name == 'nt' else 'clear')
