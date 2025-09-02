@@ -1,0 +1,41 @@
+from typing import List
+
+
+class Insured:
+    """
+    Represents an insured person with their claims.
+
+    Attributes:
+        first_name (str): First name of the insured.
+        last_name (str): Last name of the insured.
+        age (int): Age of the insured (0–120).
+        phone (str): Phone number in international E.164 format.
+        claims (list): List of insurance claims related to this insured person.
+    """
+
+    def __init__(self, first_name: str, last_name: str, age: int, phone: str):
+        if not first_name or not last_name:
+            raise ValueError("First name and last name must be provided.")
+        self.first_name = first_name.strip().title()
+        self.last_name = last_name.strip().title()
+        self.age = age
+        self.phone = phone.strip()
+        self.claims: List = []  # List of Claim objects
+
+    def add_claim(self, claim):
+        """
+        Assign a new claim to this insured person.
+
+        Args:
+            claim (Claim): The claim to be added.
+        """
+        self.claims.append(claim)
+
+    def __str__(self):
+        """
+        Format the insured person for console table output.
+
+        Returns:
+            str: Formatted insured person string.
+        """
+        return f"{self.first_name:<12} {self.last_name:<12} {self.age:<5} {self.phone}"
