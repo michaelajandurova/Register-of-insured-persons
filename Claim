@@ -1,0 +1,30 @@
+class Claim:
+    """
+    Represents an insurance claim belonging to an insured person.
+
+    Attributes:
+        id (int): Unique identifier for the claim.
+        description (str): Description of the claim.
+        date (str): Date of the claim (YYYY-MM-DD).
+        status (str): Status of the claim (e.g., 'open', 'closed').
+        insured (Insured): Reference to the insured person who owns this claim.
+    """
+
+    def __init__(self, id: int, description: str, date: str, status: str, insured: "Insured"):
+        self.id = id
+        self.description = description
+        self.date = date
+        self.status = status
+        self.insured = insured
+
+    def __str__(self):
+        """
+        Format the claim for console output.
+
+        Returns:
+            str: Formatted claim string.
+        """
+        return (f"Claim #{self.id} ({self.status})\n"
+                f"Date: {self.date}\n"
+                f"Description: {self.description}\n"
+                f"Insured: {self.insured.first_name} {self.insured.last_name}")
